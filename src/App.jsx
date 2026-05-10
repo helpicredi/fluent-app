@@ -14,14 +14,32 @@ const LEVELS = [
 const AVATARS = ["🧑","👩","👨","🧒","👧","👦","🧔","👩‍🦱","👩‍🦰","👨‍🦳","🧑‍🎓","👩‍💻","🧑‍🚀","🦊","🐼","🐨","🦁","🐯","🐸","🐙"];
 
 const PLACEMENT_QUESTIONS = [
-  { id:"p1", question:"Choose the correct sentence:", options:["She go to school every day.","She goes to school every day.","She going to school every day.","She goed to school every day."], correct:1, level:"A1" },
-  { id:"p2", question:"What is the past tense of 'buy'?", options:["buyed","buys","bought","buying"], correct:2, level:"A2" },
-  { id:"p3", question:"Which sentence uses the Present Perfect correctly?", options:["I have seen that movie yesterday.","I have never seen that movie.","I have saw that movie.","I seen that movie before."], correct:1, level:"B1" },
-  { id:"p4", question:"Choose the correct conditional:", options:["If I would have money, I will travel.","If I have money, I would travel.","If I had money, I would travel.","If I had money, I will travel."], correct:2, level:"B2" },
-  { id:"p5", question:"Select the most appropriate word: 'The new policy was met with widespread ___.'", options:["criticism","critic","critical","critically"], correct:0, level:"C1" },
-  { id:"p6", question:"Which phrase best replaces 'very important'?", options:["a lot significant","pivotal","very very key","quite big"], correct:1, level:"C1" },
-  { id:"p7", question:"Identify the nuanced meaning: 'He could hardly contain his enthusiasm.'", options:["He was barely enthusiastic.","He struggled to control his excitement.","He contained some enthusiasm.","He had no enthusiasm."], correct:1, level:"C2" },
-  { id:"p8", question:"Which is the correct subjunctive form?", options:["I suggest that he goes home.","I suggest that he go home.","I suggest that he would go home.","I suggest that he went home."], correct:1, level:"C2" },
+  { id:"p1", level:"A1", question:"Which sentence is grammatically correct?",
+    options:["She go to school every day.","She goes to school every day.","She going to school every day.","She goed to school every day."],
+    correct:1, explanation:"Third person singular needs -s: 'goes'." },
+  { id:"p2", level:"A1", question:"Choose the correct verb: 'I ___ a student.'",
+    options:["is","are","am","be"], correct:2, explanation:"With 'I', always use 'am'." },
+  { id:"p3", level:"A2", question:"What is the past tense of 'buy'?",
+    options:["buyed","buys","bought","buying"], correct:2, explanation:"Irregular verb: buy → bought." },
+  { id:"p4", level:"A2", question:"Which sentence is correct?",
+    options:["Yesterday I go to the market.","Yesterday I went to the market.","Yesterday I gone to the market.","Yesterday I goes to the market."],
+    correct:1, explanation:"Past simple with 'yesterday': 'went'." },
+  { id:"p5", level:"B1", question:"Which sentence uses Present Perfect correctly?",
+    options:["I have seen that movie yesterday.","I have never seen that movie.","I have saw that movie.","I seen that movie before."],
+    correct:1, explanation:"Present Perfect: have/has + past participle. Never use with 'yesterday'." },
+  { id:"p6", level:"B1", question:"Choose the correct sentence:",
+    options:["She is working here since 2020.","She has been working here since 2020.","She was working here since 2020.","She works here since 2020."],
+    correct:1, explanation:"For ongoing actions started in the past, use Present Perfect Continuous + since." },
+  { id:"p7", level:"B2", question:"Choose the correct second conditional:",
+    options:["If I would have money, I will travel.","If I have money, I would travel.","If I had money, I would travel.","If I had money, I will travel."],
+    correct:2, explanation:"Second conditional: If + past simple, would + infinitive." },
+  { id:"p8", level:"C1", question:"Select the best word: 'The new policy faced widespread ___.'",
+    options:["criticism","critic","critical","critically"], correct:0, explanation:"'Criticism' is the noun needed after 'widespread'." },
+  { id:"p9", level:"C1", question:"Which best replaces 'very important' in formal writing?",
+    options:["quite big","very key","pivotal","a lot significant"], correct:2, explanation:"'Pivotal' is a formal synonym for 'very important'." },
+  { id:"p10", level:"C2", question:"Which is the correct subjunctive form?",
+    options:["I suggest that he goes home.","I suggest that he go home.","I suggest that he would go home.","I suggest that he went home."],
+    correct:1, explanation:"Subjunctive after 'suggest/recommend' uses base form: 'go' (not 'goes')." },
 ];
 
 const EXERCISE_TYPES = ["translate_to_en","translate_to_pt","fill_blank","word_order"];
@@ -261,10 +279,14 @@ const css = `
 async function generateExercise(level) {
   const type = EXERCISE_TYPES[Math.floor(Math.random() * EXERCISE_TYPES.length)];
   const prompts = {
-    translate_to_en: `Generate a Portuguese sentence for English level ${level}. JSON only:\n{"type":"translate_to_en","instruction":"Translate to English:","sentence_pt":"<PT>","answer":"<EN>","hint":"<tip>"}`,
-    translate_to_pt: `Generate an English sentence for level ${level}. JSON only:\n{"type":"translate_to_pt","instruction":"Translate to Portuguese:","sentence_en":"<EN>","answer":"<PT>","hint":"<tip>"}`,
-    fill_blank:      `Fill-in-the-blank exercise in English for level ${level}. Use ___ for blank. JSON only:\n{"type":"fill_blank","instruction":"Fill in the blank:","sentence":"<sentence with ___ >","answer":"<word>","options":["<correct>","<wrong1>","<wrong2>","<wrong3>"],"hint":"<tip>"}`,
-    word_order:      `Word-order exercise in English for level ${level}. JSON only:\n{"type":"word_order","instruction":"Put the words in the correct order:","words":["<w1>","<w2>","<w3>","<w4>","<w5>"],"answer":"<correct sentence>","hint":"<tip>"}`,
+    translate_to_en: `You are an English teacher for Brazilian Portuguese speakers. Create a sentence in PORTUGUESE (Brazil) appropriate for CEFR level ${level}, and ask the student to translate it to ENGLISH. The answer must be in ENGLISH. Respond ONLY with valid JSON, no markdown, no extra text:
+{"type":"translate_to_en","instruction":"Translate this sentence to English:","sentence_pt":"<a sentence written in Brazilian Portuguese>","answer":"<the correct English translation>","hint":"<one short grammar tip in English>"}`,
+    translate_to_pt: `You are an English teacher for Brazilian Portuguese speakers. Create a sentence in ENGLISH appropriate for CEFR level ${level}, and ask the student to translate it to PORTUGUESE. The answer must be in PORTUGUESE. Respond ONLY with valid JSON, no markdown, no extra text:
+{"type":"translate_to_pt","instruction":"Translate this sentence to Portuguese:","sentence_en":"<a sentence written in English>","answer":"<the correct Portuguese translation>","hint":"<one short vocabulary tip in English>"}`,
+    fill_blank:      `You are an English teacher. Create a fill-in-the-blank exercise in ENGLISH for CEFR level ${level}. The sentence, options and answer must all be in ENGLISH. Use ___ for the blank. Respond ONLY with valid JSON, no markdown, no extra text:
+{"type":"fill_blank","instruction":"Fill in the blank with the correct word:","sentence":"<English sentence with ___ for the missing word>","answer":"<the single correct English word>","options":["<correct word>","<plausible wrong word>","<plausible wrong word>","<plausible wrong word>"],"hint":"<one short grammar tip in English>"}`,
+    word_order:      `You are an English teacher. Create a word-order exercise in ENGLISH for CEFR level ${level}. All words must be in ENGLISH. Respond ONLY with valid JSON, no markdown, no extra text:
+{"type":"word_order","instruction":"Arrange the words to form a correct sentence:","words":["<word1>","<word2>","<word3>","<word4>","<word5>","<word6>"],"answer":"<the correct English sentence>","hint":"<one short grammar tip in English>"}`,
   };
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST", headers: { "Content-Type":"application/json" },
@@ -621,7 +643,15 @@ export default function App() {
                       >{opt}</button>
                     ))}
                   </div>
-                  {showFB && <div className="mt-16"><button className="btn btn-primary" onClick={nextPlacementQ}>{pStep+1>=PLACEMENT_QUESTIONS.length?"See my level →":"Next →"}</button></div>}
+                  {showFB && (
+                    <div className="mt-16">
+                      <div style={{padding:"12px 16px",borderRadius:10,background:selOpt===PLACEMENT_QUESTIONS[pStep].correct?"var(--accent-light)":"var(--danger-light)",border:`1px solid ${selOpt===PLACEMENT_QUESTIONS[pStep].correct?"var(--accent2)":"var(--danger)"}`,marginBottom:12,fontSize:13,color:selOpt===PLACEMENT_QUESTIONS[pStep].correct?"var(--accent)":"var(--danger)"}}>
+                        <strong>{selOpt===PLACEMENT_QUESTIONS[pStep].correct?"✅ Correct!":"❌ Incorrect."}</strong>
+                        <span style={{display:"block",marginTop:4,color:"var(--text2)"}}>{PLACEMENT_QUESTIONS[pStep].explanation}</span>
+                      </div>
+                      <button className="btn btn-primary" onClick={nextPlacementQ}>{pStep+1>=PLACEMENT_QUESTIONS.length?"See my level →":"Next →"}</button>
+                    </div>
+                  )}
                 </>;
               })()}
             </div>
